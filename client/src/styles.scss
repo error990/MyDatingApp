@@ -1,7 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 
+// THE BOOTSTRAP IMPORT IS COMMENTED OUT BECAUSE IT OVERRIDES THE BOOTSWATCH THEMES FROM STYLES[...] IN ANGULAR.JSON
+// THE IMPORTS ARE NOT NEEDED
 /* Importing Bootstrap SCSS file. */
-@import "./node_modules/bootstrap/scss/bootstrap";
+// @import "./node_modules/bootstrap/scss/bootstrap";
 
 /* Importing Datepicker SCSS file. */
 @import "node_modules/ngx-bootstrap/datepicker/bs-datepicker";
+
+/* Importing Bootstrap SCSS file. */
+// @import "node_modules/bootswatch/dist/united/bootstrap.css";
