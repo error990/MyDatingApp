@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.Data;
 using API.DTOs;
 using API.Entities;
@@ -37,9 +38,21 @@ public class UsersController : BaseApiController
         return await _userRepository.GetMemberAsync(username);
     }
 
-    // [HttpGet("{id}")] // api/users/3
-    // public async Task<ActionResult<AppUser?>> GetUserById(int id)
-    // {
-    //     return await _userRepository.GetUserByIdAsync(id);
-    // }
+    // username is stored in token --> authenticated request
+    [HttpPut]
+    public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+    {
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (username == null) return NotFound();
+
+        var user = await _userRepository.GetUserByUsernameAsync(username);
+        if (user == null) return NotFound();
+
+        // Updates all of the properties that are passed through via the memberUpdateDto
+        _mapper.Map(memberUpdateDto, user);
+
+        if (await _userRepository.SaveAllAsync()) return NoContent();
+
+        return BadRequest("Failed to update user");
+    }
 }
