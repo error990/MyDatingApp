@@ -40,14 +40,19 @@ public class AccountController : BaseApiController
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return new UserDto(dto.Username.ToLower(), _tokenService.CreateToken(user));
+        return new UserDto(
+            dto.Username.ToLower(), 
+            _tokenService.CreateToken(user),
+            string.Empty
+        );
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> Login(LoginDto dto)
     {
-        AppUser? user = await _context.Users.SingleOrDefaultAsync(u => 
-            u.Username.ToLower() == dto.Username.ToLower());
+        AppUser? user = await _context.Users
+            .Include(u => u.Photos)
+            .SingleOrDefaultAsync(u => u.Username.ToLower() == dto.Username.ToLower());
 
         if (user is null ) return Unauthorized("invalid username");
 
@@ -62,7 +67,11 @@ public class AccountController : BaseApiController
             if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("invalid password");
         }
 
-        return new UserDto(dto.Username, _tokenService.CreateToken(user));
+        return new UserDto(
+            dto.Username, 
+            _tokenService.CreateToken(user),
+            user.Photos.FirstOrDefault(ph => ph.IsMain)?.Url ?? string.Empty
+        );
     }
 
     private async Task<bool> UserExists(string username)
